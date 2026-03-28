@@ -101,6 +101,49 @@
     <div class="result-content">
       <h2 class="result-header-title">あなたの恋人が見つかりました</h2>
 
+      <!-- 声の特徴分析 -->
+      <section class="result-section">
+        <h3 class="section-label">あなたの声の特徴</h3>
+        <div class="voice-analysis-card">
+          <p class="voice-overall" id="voice-overall">—</p>
+          <div class="voice-keywords" id="voice-keywords"></div>
+          <div class="voice-metrics">
+            <div class="voice-metric-item">
+              <div class="voice-metric-header">
+                <span class="voice-metric-icon">⏱</span>
+                <span class="voice-metric-name">話すスピード</span>
+                <span class="voice-metric-badge" id="voice-speed-label">—</span>
+              </div>
+              <p class="voice-metric-desc" id="voice-speed-desc">—</p>
+            </div>
+            <div class="voice-metric-item">
+              <div class="voice-metric-header">
+                <span class="voice-metric-icon">🤫</span>
+                <span class="voice-metric-name">間の使い方</span>
+                <span class="voice-metric-badge" id="voice-pause-label">—</span>
+              </div>
+              <p class="voice-metric-desc" id="voice-pause-desc">—</p>
+            </div>
+            <div class="voice-metric-item">
+              <div class="voice-metric-header">
+                <span class="voice-metric-icon">🔊</span>
+                <span class="voice-metric-name">声の大きさ</span>
+                <span class="voice-metric-badge" id="voice-volume-label">—</span>
+              </div>
+              <p class="voice-metric-desc" id="voice-volume-desc">—</p>
+            </div>
+            <div class="voice-metric-item">
+              <div class="voice-metric-header">
+                <span class="voice-metric-icon">🎵</span>
+                <span class="voice-metric-name">抑揚・リズム</span>
+                <span class="voice-metric-badge" id="voice-rhythm-label">—</span>
+              </div>
+              <p class="voice-metric-desc" id="voice-rhythm-desc">—</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <!-- 自分のビッグファイブレーダーチャート -->
       <section class="result-section">
         <h3 class="section-label">あなたの性格分析</h3>

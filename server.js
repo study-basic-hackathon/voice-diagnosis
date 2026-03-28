@@ -172,6 +172,52 @@ async function generatePartnerProfile(partnerBigFive, seed) {
   return JSON.parse(jsonMatch[0]);
 }
 
+// ---- Claude API で声の特徴を分析 ----
+async function generateVoiceAnalysis(speechFeatures, userBigFive) {
+  const prompt = `以下は、ある人が台本を読み上げた際の音声特徴データとビッグファイブスコアです。
+この人の「話し方の特徴」を、具体的・個性的に分析してください。
+
+【音声特徴データ】
+- 平均テンポ: ${speechFeatures.tempo.toFixed(2)} mora/秒
+- 無音区間の平均長さ: ${speechFeatures.silenceAvg.toFixed(0)} ms
+- 無音区間の回数: ${speechFeatures.silenceCount} 回
+- 音量の標準偏差: ${speechFeatures.volumeStdDev.toFixed(2)} dB
+- 音量の平均値: ${speechFeatures.volumeMean.toFixed(2)} dB
+- 音量変化の周期性スコア: ${speechFeatures.rhythmScore.toFixed(2)}
+
+【ビッグファイブスコア】
+- 開放性: ${userBigFive.openness}
+- 誠実性: ${userBigFive.conscientiousness}
+- 外向性: ${userBigFive.extraversion}
+- 協調性: ${userBigFive.agreeableness}
+- 神経症傾向: ${userBigFive.neuroticism}
+
+以下のJSON形式のみで返答してください（説明文は不要）：
+{
+  "overall": "この人の話し方の全体的な印象（2〜3文、その人らしい具体的な描写で）",
+  "speed_label": "話すスピードを表す一言（例：ゆっくり丁寧 / テキパキ / など）",
+  "speed_description": "話すスピードの特徴と、それが相手にどう伝わるかの一文",
+  "pause_label": "間の使い方を表す一言（例：間を大切にする / 自然な間 / テンポよく など）",
+  "pause_description": "間の使い方の特徴と印象の一文",
+  "volume_label": "声の大きさを表す一言（例：穏やかな声量 / しっかりした声 / など）",
+  "volume_description": "声の大きさの特徴と印象の一文",
+  "rhythm_label": "抑揚・リズムを表す一言（例：抑揚豊か / 落ち着いたトーン / など）",
+  "rhythm_description": "抑揚やリズムの特徴と印象の一文",
+  "keywords": ["この人の話し方を表すキーワード1", "キーワード2", "キーワード3"]
+}`;
+
+  const message = await callClaudeWithRetry({
+    model: 'claude-sonnet-4-6',
+    max_tokens: 512,
+    messages: [{ role: 'user', content: prompt }],
+  });
+
+  const text = message.content[0].text.trim();
+  const jsonMatch = text.match(/\{[\s\S]*\}/);
+  if (!jsonMatch) throw new Error('声の分析JSONの解析に失敗しました');
+  return JSON.parse(jsonMatch[0]);
+}
+
 // ---- モックデータ ----
 function getMockBigFive() {
   return {
@@ -180,6 +226,21 @@ function getMockBigFive() {
     extraversion: 55,
     agreeableness: 78,
     neuroticism: 30,
+  };
+}
+
+function getMockVoiceAnalysis() {
+  return {
+    overall: 'ゆったりとしたペースで、言葉をひとつひとつ丁寧に紡ぐような話し方です。聞いている人が自然と安心感を覚える、穏やかな声の持ち主です。',
+    speed_label: 'ゆっくり丁寧',
+    speed_description: 'せかせかせず、相手が理解する時間を自然に作りながら話せる人という印象を与えます。',
+    pause_label: '間を大切にする',
+    pause_description: '言葉と言葉の間にゆとりがあり、考えながら話していることが伝わります。',
+    volume_label: '穏やかな声量',
+    volume_description: '大声で圧迫感を与えることなく、近い距離で話すのが心地よい声の大きさです。',
+    rhythm_label: '落ち着いたトーン',
+    rhythm_description: '音量の起伏が少なく、安定したリズムで話すため、聴き疲れしない話し方です。',
+    keywords: ['落ち着いた', '丁寧', '聞き心地がいい'],
   };
 }
 
@@ -213,6 +274,8 @@ app.post('/api/analyze', async (req, res) => {
 
     let userBigFive, partnerProfile, partnerBigFive, seed;
 
+    let voiceAnalysis;
+
     if (MOCK_MODE) {
       // モックモード：ダミーデータで返す
       await new Promise(r => setTimeout(r, 1500)); // 疑似ローディング
@@ -220,6 +283,7 @@ app.post('/api/analyze', async (req, res) => {
       seed = calcSeed(userBigFive);
       partnerBigFive = calcPartnerBigFive(userBigFive, seed);
       partnerProfile = getMockProfile();
+      voiceAnalysis = getMockVoiceAnalysis();
     } else {
       // Step 1: ビッグファイブ算出
       userBigFive = await analyzeBigFive(speechFeatures, transcript);
@@ -230,14 +294,18 @@ app.post('/api/analyze', async (req, res) => {
       // Step 3: 相手のビッグファイブを決定論的に算出
       partnerBigFive = calcPartnerBigFive(userBigFive, seed);
 
-      // Step 4: 恋人プロフィール生成
-      partnerProfile = await generatePartnerProfile(partnerBigFive, seed);
+      // Step 4: 恋人プロフィール生成・声の特徴分析（並列実行）
+      [partnerProfile, voiceAnalysis] = await Promise.all([
+        generatePartnerProfile(partnerBigFive, seed),
+        generateVoiceAnalysis(speechFeatures, userBigFive),
+      ]);
     }
 
     res.json({
       userBigFive,
       partnerBigFive,
       partnerProfile,
+      voiceAnalysis,
       seed,
     });
   } catch (err) {

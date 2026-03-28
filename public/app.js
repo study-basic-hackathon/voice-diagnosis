@@ -364,7 +364,31 @@ async function analyzeAndShowResult(features) {
 let radarChart = null;
 
 function renderResult(data) {
-  const { userBigFive, partnerBigFive, partnerProfile } = data;
+  const { userBigFive, partnerBigFive, partnerProfile, voiceAnalysis } = data;
+
+  // 声の特徴セクション
+  if (voiceAnalysis) {
+    document.getElementById('voice-overall').textContent = voiceAnalysis.overall || '—';
+
+    // キーワードバッジ
+    const keywordsEl = document.getElementById('voice-keywords');
+    keywordsEl.innerHTML = '';
+    (voiceAnalysis.keywords || []).forEach(kw => {
+      const span = document.createElement('span');
+      span.className = 'voice-keyword-badge';
+      span.textContent = kw;
+      keywordsEl.appendChild(span);
+    });
+
+    document.getElementById('voice-speed-label').textContent = voiceAnalysis.speed_label || '—';
+    document.getElementById('voice-speed-desc').textContent = voiceAnalysis.speed_description || '—';
+    document.getElementById('voice-pause-label').textContent = voiceAnalysis.pause_label || '—';
+    document.getElementById('voice-pause-desc').textContent = voiceAnalysis.pause_description || '—';
+    document.getElementById('voice-volume-label').textContent = voiceAnalysis.volume_label || '—';
+    document.getElementById('voice-volume-desc').textContent = voiceAnalysis.volume_description || '—';
+    document.getElementById('voice-rhythm-label').textContent = voiceAnalysis.rhythm_label || '—';
+    document.getElementById('voice-rhythm-desc').textContent = voiceAnalysis.rhythm_description || '—';
+  }
 
   // レーダーチャート
   drawRadarChart(userBigFive, partnerBigFive);

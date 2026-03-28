@@ -335,6 +335,88 @@ html, body {
   padding-left: 10px;
 }
 
+/* 声の特徴カード */
+.voice-analysis-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+  box-shadow: var(--shadow);
+}
+
+.voice-overall {
+  font-size: 0.97rem;
+  color: var(--text-primary);
+  line-height: 1.9;
+  margin-bottom: 16px;
+}
+
+.voice-keywords {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.voice-keyword-badge {
+  background: var(--accent-rose-dim);
+  border: 1px solid rgba(232, 121, 154, 0.35);
+  color: var(--accent-rose-light);
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  padding: 4px 12px;
+  border-radius: 999px;
+}
+
+.voice-metrics {
+  display: grid;
+  gap: 12px;
+}
+
+.voice-metric-item {
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: var(--radius-sm);
+  padding: 14px 16px;
+}
+
+.voice-metric-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.voice-metric-icon {
+  font-size: 1rem;
+}
+
+.voice-metric-name {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  letter-spacing: 0.06em;
+  flex: 1;
+}
+
+.voice-metric-badge {
+  background: linear-gradient(135deg, rgba(232, 121, 154, 0.25), rgba(201, 160, 220, 0.25));
+  border: 1px solid rgba(232, 121, 154, 0.3);
+  color: var(--accent-rose-light);
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 2px 10px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.voice-metric-desc {
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+  line-height: 1.7;
+  padding-left: 2px;
+}
+
 /* レーダーチャート */
 .chart-container {
   background: var(--bg-card);
