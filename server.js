@@ -108,13 +108,24 @@ function parseClaudeJson(text) {
   return JSON.parse(cleaned);
 }
 
+// ---- 録音時間からテンポラベルを生成（台本が全員共通のため録音時間で判定） ----
+function durationToTempoLabel(sec) {
+  if (sec <= 30) return 'かなり早口（30秒以下）';
+  if (sec <= 40) return 'やや早口（30〜40秒）';
+  if (sec <= 50) return '普通（40〜50秒）';
+  if (sec <= 60) return 'ゆっくり（50〜60秒）';
+  return 'かなりゆっくり（60秒以上）';
+}
+
 // ---- Claude API でビッグファイブを算出 ----
 async function analyzeBigFive(speechFeatures, transcript) {
+  const tempoLabel = durationToTempoLabel(speechFeatures.durationSec);
+
   const prompt = `以下は、ある人が台本を読み上げた際の音声特徴データと書き起こしテキストです。
 これらのデータをもとに、その人のビッグファイブ性格特性を 0〜100 のスコアで推定してください。
 
 【音声特徴データ】
-- 平均テンポ: ${speechFeatures.tempo.toFixed(2)} mora/秒
+- 話すテンポ: ${tempoLabel}（台本の想定読了時間45秒に対し、録音時間 ${Math.round(speechFeatures.durationSec)} 秒）
 - 無音区間の平均長さ: ${speechFeatures.silenceAvg.toFixed(0)} ms
 - 無音区間の回数: ${speechFeatures.silenceCount} 回
 - 音量の標準偏差: ${speechFeatures.volumeStdDev.toFixed(2)} dB
@@ -195,11 +206,13 @@ async function generatePartnerProfile(partnerBigFive, seed, partnerGender) {
 
 // ---- Claude API で声の特徴を分析 ----
 async function generateVoiceAnalysis(speechFeatures, userBigFive) {
+  const tempoLabel = durationToTempoLabel(speechFeatures.durationSec);
+
   const prompt = `以下は、ある人が台本を読み上げた際の音声特徴データとビッグファイブスコアです。
 この人の「話し方の特徴」を、具体的・個性的に分析してください。
 
 【音声特徴データ（参考値）】
-- 平均テンポ: ${speechFeatures.tempo.toFixed(2)} mora/秒
+- 話すテンポ: ${tempoLabel}（台本の想定読了時間45秒に対し、録音時間 ${Math.round(speechFeatures.durationSec)} 秒）
 - 無音区間の平均長さ: ${speechFeatures.silenceAvg.toFixed(0)} ms
 - 無音区間の回数: ${speechFeatures.silenceCount} 回
 - 音量の標準偏差: ${speechFeatures.volumeStdDev.toFixed(2)} dB

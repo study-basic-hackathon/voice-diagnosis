@@ -245,25 +245,26 @@ function startVolumeSampling() {
   }, 100);
 }
 
+// ---- 録音時間からテンポラベルを判定 ----
+// 台本の想定読了時間45秒を基準にする
+function durationToTempoLabel(sec) {
+  if (sec <= 30) return 'かなり早口';
+  if (sec <= 40) return 'やや早口';
+  if (sec <= 50) return '普通';
+  if (sec <= 60) return 'ゆっくり';
+  return 'かなりゆっくり';
+}
+
 // ---- 音声特徴の計算 ----
 function calcSpeechFeatures(durationSec) {
   clearInterval(samplingInterval);
 
-  // 平均テンポ：句読点・記号を除いた文字数 / 録音時間（秒）
-  // 日本語の書き起こしは漢字・ひらがな混じりのため 1文字 ≈ 1mora で計算
-  const cleanedTranscript = transcript.replace(/[\s、。！？!?,.，．・「」『』【】（）()]/g, '');
-  const moraCount = cleanedTranscript.length;
-  const tempo = durationSec > 0 ? moraCount / durationSec : 0;
-
-  // テンポの目安判定
-  const tempoLabel = tempo <= 3 ? 'ゆっくり' : tempo >= 5 ? '早口' : '普通';
-  console.log('[テンポ計算]', {
-    書き起こし全文: transcript,
-    句読点除去後: cleanedTranscript,
-    文字数_モーラ数: moraCount,
+  // テンポは録音時間で判定（台本が全員共通のため）
+  const tempoLabel = durationToTempoLabel(durationSec);
+  console.log('[テンポ判定]', {
     録音時間_秒: durationSec.toFixed(2),
-    テンポ_mora毎秒: tempo.toFixed(2),
-    判定: tempoLabel + `（目安：3以下=ゆっくり, 5以上=早口）`,
+    判定: tempoLabel,
+    基準: '30秒以下=かなり早口 / 30〜40秒=やや早口 / 40〜50秒=普通 / 50〜60秒=ゆっくり / 60秒超=かなりゆっくり',
   });
 
   // 無音区間
@@ -292,7 +293,7 @@ function calcSpeechFeatures(durationSec) {
   }
 
   return {
-    tempo: Math.max(0, tempo),
+    durationSec,
     silenceAvg: Math.max(0, silenceAvg),
     silenceCount,
     volumeMean,
