@@ -110,11 +110,11 @@ function parseClaudeJson(text) {
 
 // ---- 録音時間からテンポラベルを生成（台本が全員共通のため録音時間で判定） ----
 function durationToTempoLabel(sec) {
-  if (sec <= 30) return 'かなり早口（30秒以下）';
-  if (sec <= 40) return 'やや早口（30〜40秒）';
-  if (sec <= 50) return '普通（40〜50秒）';
-  if (sec <= 60) return 'ゆっくり（50〜60秒）';
-  return 'かなりゆっくり（60秒以上）';
+  if (sec <= 15) return 'かなり早口（15秒以下）';
+  if (sec <= 18) return 'やや早口（15〜18秒）';
+  if (sec <= 22) return '普通（18〜22秒）';
+  if (sec <= 25) return 'ゆっくり（22〜25秒）';
+  return 'かなりゆっくり（25秒以上）';
 }
 
 // ---- Claude API でビッグファイブを算出 ----

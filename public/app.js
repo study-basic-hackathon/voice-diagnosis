@@ -248,10 +248,10 @@ function startVolumeSampling() {
 // ---- 録音時間からテンポラベルを判定 ----
 // 台本の想定読了時間45秒を基準にする
 function durationToTempoLabel(sec) {
-  if (sec <= 30) return 'かなり早口';
-  if (sec <= 40) return 'やや早口';
-  if (sec <= 50) return '普通';
-  if (sec <= 60) return 'ゆっくり';
+  if (sec <= 15) return 'かなり早口';
+  if (sec <= 18) return 'やや早口';
+  if (sec <= 22) return '普通';
+  if (sec <= 25) return 'ゆっくり';
   return 'かなりゆっくり';
 }
 
@@ -264,7 +264,7 @@ function calcSpeechFeatures(durationSec) {
   console.log('[テンポ判定]', {
     録音時間_秒: durationSec.toFixed(2),
     判定: tempoLabel,
-    基準: '30秒以下=かなり早口 / 30〜40秒=やや早口 / 40〜50秒=普通 / 50〜60秒=ゆっくり / 60秒超=かなりゆっくり',
+    基準: '15秒以下=かなり早口 / 15〜18秒=やや早口 / 18〜22秒=普通 / 22〜25秒=ゆっくり / 25秒超=かなりゆっくり',
   });
 
   // 無音区間
