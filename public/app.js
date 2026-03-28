@@ -303,8 +303,21 @@ function startSpeechRecognition() {
   };
 
   speechRecognition.onerror = (e) => {
-    // 音声認識のエラーは無視（テキストなしで分析を続ける）
     console.warn('音声認識エラー:', e.error);
+    if (e.error === 'no-speech' && isRecording) {
+      // 録音中に音声が認識できなかった場合は録音を停止してエラーを通知
+      isRecording = false;
+      clearInterval(timerInterval);
+      cancelAnimationFrame(visualizerRAF);
+      visualizerCont.classList.remove('active');
+      if (mediaStream) mediaStream.getTracks().forEach(t => t.stop());
+      if (audioContext) audioContext.close();
+      clearInterval(samplingInterval);
+      btnRecordStart.disabled = false;
+      btnRecordStart.classList.remove('recording');
+      btnRecordStop.disabled = true;
+      showError('音声を認識できませんでした。もう少し大きな声でもう一度お試しください。');
+    }
   };
 
   try {
