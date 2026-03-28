@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>こえこい — 声で見つける、あなたの恋人</title>
+  <link rel="stylesheet" href="style.css" />
+  <!-- レーダーチャート用 Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+
+  <!-- ===== 画面1: TOP ===== -->
+  <div id="screen-top" class="screen active">
+    <div class="top-content">
+      <div class="top-icon">♡</div>
+      <h1 class="app-title">こえこい</h1>
+      <p class="app-subtitle">声で見つける、あなたの恋人</p>
+      <p class="app-description">
+        短い台本を声に出して読むだけ。<br />
+        あなたの「話し方」から、相性のいい恋人像を生成します。<br />
+        <span class="highlight">同じ人が試すと、いつも似た結果になる</span>のが特徴です。
+      </p>
+      <div class="feature-list">
+        <div class="feature-item">
+          <span class="feature-icon">🎙</span>
+          <span>台本を読み上げる（約30秒）</span>
+        </div>
+        <div class="feature-item">
+          <span class="feature-icon">📊</span>
+          <span>話し方をAIが分析</span>
+        </div>
+        <div class="feature-item">
+          <span class="feature-icon">💑</span>
+          <span>あなたの恋人像が生まれる</span>
+        </div>
+      </div>
+      <button id="btn-start" class="btn btn-primary btn-large">はじめる</button>
+      <p class="mic-note">※マイクの使用許可が必要です</p>
+    </div>
+  </div>
+
+  <!-- ===== 画面2: 録音 ===== -->
+  <div id="screen-record" class="screen">
+    <div class="record-content">
+      <h2 class="section-title">台本を読み上げてください</h2>
+      <p class="record-instruction">下の文章を声に出して読んでください。<br />読み方や話し方を解析します。</p>
+
+      <div class="script-card">
+        <p class="script-text">
+          「先日、久しぶりに友人と会いました。<br />
+          特に予定はなかったのですが、気づいたら夕方まで話し込んでいました。<br />
+          帰り道、少し遠回りして歩いて帰ったのですが、<br />
+          その時間がなんだか心地よかったです。<br />
+          最近、こういう何でもない時間が一番好きだなと思います。<br />
+          あなたはどんな時間が好きですか？」
+        </p>
+      </div>
+
+      <!-- 音量ビジュアライザー -->
+      <div class="visualizer-container" id="visualizer-container">
+        <canvas id="visualizer" width="600" height="80"></canvas>
+      </div>
+
+      <!-- 録音時間表示 -->
+      <div class="record-timer" id="record-timer">00:00</div>
+
+      <!-- エラーメッセージ -->
+      <div class="error-message" id="record-error"></div>
+
+      <div class="record-controls">
+        <button id="btn-record-start" class="btn btn-record">
+          <span class="record-dot"></span>録音開始
+        </button>
+        <button id="btn-record-stop" class="btn btn-stop" disabled>
+          録音停止
+        </button>
+      </div>
+      <p class="record-hint">録音中は台本を読み続けてください（目安：30秒〜1分）</p>
+    </div>
+  </div>
+
+  <!-- ===== 画面3: 分析中 ===== -->
+  <div id="screen-analyzing" class="screen">
+    <div class="analyzing-content">
+      <div class="analyzing-animation">
+        <div class="heart-pulse">♡</div>
+      </div>
+      <h2 class="analyzing-title">あなたの恋人を探しています…</h2>
+      <p class="analyzing-message" id="analyzing-message">声のデータを解析中…</p>
+      <div class="progress-dots">
+        <span class="dot"></span>
+        <span class="dot"></span>
+        <span class="dot"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 画面4: 結果 ===== -->
+  <div id="screen-result" class="screen">
+    <div class="result-content">
+      <h2 class="result-header-title">あなたの恋人が見つかりました</h2>
+
+      <!-- 自分のビッグファイブレーダーチャート -->
+      <section class="result-section">
+        <h3 class="section-label">あなたの性格分析</h3>
+        <div class="chart-container">
+          <canvas id="radar-chart"></canvas>
+        </div>
+      </section>
+
+      <!-- 恋人プロフィールカード -->
+      <section class="result-section">
+        <h3 class="section-label">あなたの恋人</h3>
+        <div class="partner-card">
+          <div class="partner-header">
+            <div class="partner-avatar" id="partner-avatar">♡</div>
+            <div class="partner-basic">
+              <h2 class="partner-name" id="partner-name">—</h2>
+              <p class="partner-meta" id="partner-meta">—</p>
+              <p class="partner-catchphrase" id="partner-catchphrase">「—」</p>
+            </div>
+          </div>
+
+          <div class="partner-details">
+            <div class="detail-block">
+              <h4 class="detail-label">見た目</h4>
+              <ul class="detail-list" id="partner-appearance"></ul>
+            </div>
+            <div class="detail-block">
+              <h4 class="detail-label">性格</h4>
+              <ul class="detail-list" id="partner-personality"></ul>
+            </div>
+            <div class="detail-block">
+              <h4 class="detail-label">趣味</h4>
+              <ul class="detail-list" id="partner-hobbies"></ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 出会いエピソード -->
+      <section class="result-section">
+        <h3 class="section-label">出会いのきっかけ</h3>
+        <div class="episode-card meet-story">
+          <p id="partner-meet-story">—</p>
+        </div>
+      </section>
+
+      <!-- あるあるエピソード -->
+      <section class="result-section">
+        <h3 class="section-label">ふたりのあるある</h3>
+        <div class="episodes-list" id="partner-episodes"></div>
+      </section>
+
+      <div class="result-actions">
+        <button id="btn-retry" class="btn btn-primary">もう一度やる</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
