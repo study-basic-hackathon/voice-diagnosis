@@ -128,8 +128,8 @@ ${transcript || '（取得できませんでした）'}
   });
 
   const text = message.content[0].text.trim();
-  // JSON部分を抽出
-  const jsonMatch = text.match(/\{[\s\S]*\}/);
+  const stripped = text.replace(/```(?:json)?\s*/g, '').replace(/```/g, '');
+  const jsonMatch = stripped.match(/\{[\s\S]*\}/);
   if (!jsonMatch) throw new Error('ビッグファイブのJSON解析に失敗しました');
   return JSON.parse(jsonMatch[0]);
 }
@@ -167,7 +167,8 @@ async function generatePartnerProfile(partnerBigFive, seed) {
   });
 
   const text = message.content[0].text.trim();
-  const jsonMatch = text.match(/\{[\s\S]*\}/);
+  const stripped = text.replace(/```(?:json)?\s*/g, '').replace(/```/g, '');
+  const jsonMatch = stripped.match(/\{[\s\S]*\}/);
   if (!jsonMatch) throw new Error('プロフィールのJSON解析に失敗しました');
   return JSON.parse(jsonMatch[0]);
 }
