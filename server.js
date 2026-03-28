@@ -89,6 +89,25 @@ async function callClaudeWithRetry(params, maxRetries = 3, retryDelay = 3000) {
   }
 }
 
+// ---- Claude APIレスポンスのJSONパース ----
+function parseClaudeJson(text) {
+  // ```json ``` を除去
+  let cleaned = text.replace(/```json\s*/g, '').replace(/```\s*/g, '');
+  // 前後の空白を除去
+  cleaned = cleaned.trim();
+  // { または [ で始まる部分を探す
+  const jsonStart = cleaned.search(/[\[{]/);
+  if (jsonStart > 0) {
+    cleaned = cleaned.slice(jsonStart);
+  }
+  // 最後の } または ] を探す
+  const lastBrace = Math.max(cleaned.lastIndexOf('}'), cleaned.lastIndexOf(']'));
+  if (lastBrace !== -1) {
+    cleaned = cleaned.slice(0, lastBrace + 1);
+  }
+  return JSON.parse(cleaned);
+}
+
 // ---- Claude API でビッグファイブを算出 ----
 async function analyzeBigFive(speechFeatures, transcript) {
   const prompt = `以下は、ある人が台本を読み上げた際の音声特徴データと書き起こしテキストです。
@@ -128,10 +147,7 @@ ${transcript || '（取得できませんでした）'}
   });
 
   const text = message.content[0].text.trim();
-  const stripped = text.replace(/```(?:json)?\s*/g, '').replace(/```/g, '');
-  const jsonMatch = stripped.match(/\{[\s\S]*\}/);
-  if (!jsonMatch) throw new Error('ビッグファイブのJSON解析に失敗しました');
-  return JSON.parse(jsonMatch[0]);
+  return parseClaudeJson(text);
 }
 
 // ---- Claude API で恋人プロフィールを生成 ----
@@ -161,16 +177,13 @@ async function generatePartnerProfile(partnerBigFive, seed) {
 
   const message = await callClaudeWithRetry({
     model: 'claude-sonnet-4-6',
-    max_tokens: 1024,
+    max_tokens: 2000,
     temperature: 0.3, // 再現性のため低め
     messages: [{ role: 'user', content: prompt }],
   });
 
   const text = message.content[0].text.trim();
-  const stripped = text.replace(/```(?:json)?\s*/g, '').replace(/```/g, '');
-  const jsonMatch = stripped.match(/\{[\s\S]*\}/);
-  if (!jsonMatch) throw new Error('プロフィールのJSON解析に失敗しました');
-  return JSON.parse(jsonMatch[0]);
+  return parseClaudeJson(text);
 }
 
 // ---- Claude API で声の特徴を分析 ----
@@ -209,18 +222,13 @@ async function generateVoiceAnalysis(speechFeatures, userBigFive) {
 
   const message = await callClaudeWithRetry({
     model: 'claude-sonnet-4-6',
-    max_tokens: 512,
+    max_tokens: 2000,
     messages: [{ role: 'user', content: prompt }],
   });
 
   const text = message.content[0].text.trim();
   console.log('[generateVoiceAnalysis] Claude raw response:', text);
-
-  // コードブロック（```json ... ``` or ``` ... ```）を除去してからJSON抽出
-  const stripped = text.replace(/```(?:json)?\s*/g, '').replace(/```/g, '');
-  const jsonMatch = stripped.match(/\{[\s\S]*\}/);
-  if (!jsonMatch) throw new Error('声の分析JSONの解析に失敗しました。レスポンス: ' + text.slice(0, 200));
-  return JSON.parse(jsonMatch[0]);
+  return parseClaudeJson(text);
 }
 
 // ---- モックデータ ----
