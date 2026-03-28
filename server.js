@@ -151,9 +151,16 @@ ${transcript || '（取得できませんでした）'}
 }
 
 // ---- Claude API で恋人プロフィールを生成 ----
-async function generatePartnerProfile(partnerBigFive, seed) {
+async function generatePartnerProfile(partnerBigFive, seed, partnerGender) {
+  const genderMap = { male: '男性', female: '女性', any: null };
+  const genderInstruction = genderMap[partnerGender]
+    ? `恋人は必ず${genderMap[partnerGender]}にしてください。`
+    : '恋人の性別は自由に設定してください。';
+
   const prompt = `以下は、ある人の性格特性スコア（ビッグファイブ）です。
 この性格を持つ理想の恋人のプロフィールを生成してください。
+
+【重要】${genderInstruction}
 
 【相手の性格スコア】
 - 新しいものへの好奇心（openness）: ${partnerBigFive.openness}
@@ -284,12 +291,15 @@ function getMockProfile() {
 // ---- メインAPIエンドポイント ----
 app.post('/api/analyze', async (req, res) => {
   try {
-    const { speechFeatures, transcript } = req.body;
+    const { speechFeatures, transcript, partnerGender = 'female' } = req.body;
 
     // 入力バリデーション
     if (!speechFeatures) {
       return res.status(400).json({ error: '音声特徴データが見つかりません' });
     }
+
+    const validGenders = ['male', 'female', 'any'];
+    const safePartnerGender = validGenders.includes(partnerGender) ? partnerGender : 'female';
 
     let userBigFive, partnerProfile, partnerBigFive, seed;
 
@@ -315,7 +325,7 @@ app.post('/api/analyze', async (req, res) => {
 
       // Step 4: 恋人プロフィール生成・声の特徴分析（並列実行）
       [partnerProfile, voiceAnalysis] = await Promise.all([
-        generatePartnerProfile(partnerBigFive, seed),
+        generatePartnerProfile(partnerBigFive, seed, safePartnerGender),
         generateVoiceAnalysis(speechFeatures, userBigFive),
       ]);
     }

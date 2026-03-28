@@ -137,6 +137,60 @@ html, body {
   color: var(--text-muted);
 }
 
+/* 性別選択フォーム */
+.gender-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin: 28px 0 24px;
+  text-align: left;
+}
+
+.gender-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.gender-label {
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+  min-width: 88px;
+  flex-shrink: 0;
+}
+
+.gender-options {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.gender-option {
+  cursor: pointer;
+}
+
+.gender-option input[type="radio"] {
+  display: none;
+}
+
+.gender-option span {
+  display: inline-block;
+  padding: 6px 16px;
+  border-radius: 20px;
+  border: 1.5px solid var(--border);
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  background: transparent;
+  transition: all 0.2s;
+}
+
+.gender-option input[type="radio"]:checked + span {
+  background: var(--accent-rose-dim);
+  border-color: var(--accent-rose);
+  color: var(--accent-rose-light);
+}
+
 /* =========================================
    画面2: 録音
    ========================================= */

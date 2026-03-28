@@ -48,8 +48,16 @@ const analyzerMsg    = document.getElementById('analyzing-message');
 const visualizerCont = document.getElementById('visualizer-container');
 const visualizerCanvas = document.getElementById('visualizer');
 
+// 性別選択の状態
+let userGender = 'male';
+let partnerGender = 'female';
+
 // ---- ボタンイベント ----
-btnStart.addEventListener('click', () => showScreen('record'));
+btnStart.addEventListener('click', () => {
+  userGender = document.querySelector('input[name="userGender"]:checked')?.value || 'male';
+  partnerGender = document.querySelector('input[name="partnerGender"]:checked')?.value || 'female';
+  showScreen('record');
+});
 
 btnRecordStart.addEventListener('click', async () => {
   recordError.textContent = '';
@@ -364,6 +372,7 @@ async function analyzeAndShowResult(features) {
       body: JSON.stringify({
         speechFeatures: features,
         transcript,
+        partnerGender,
       }),
     });
 
