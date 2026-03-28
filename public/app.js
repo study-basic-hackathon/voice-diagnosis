@@ -241,10 +241,22 @@ function startVolumeSampling() {
 function calcSpeechFeatures(durationSec) {
   clearInterval(samplingInterval);
 
-  // 平均テンポ：書き起こしの文字数 / 録音時間
-  // 日本語はおよそ1文字 ≈ 0.5mora として概算
-  const moraCount = transcript.length * 0.5;
+  // 平均テンポ：句読点・記号を除いた文字数 / 録音時間（秒）
+  // 日本語の書き起こしは漢字・ひらがな混じりのため 1文字 ≈ 1mora で計算
+  const cleanedTranscript = transcript.replace(/[\s、。！？!?,.，．・「」『』【】（）()]/g, '');
+  const moraCount = cleanedTranscript.length;
   const tempo = durationSec > 0 ? moraCount / durationSec : 0;
+
+  // テンポの目安判定
+  const tempoLabel = tempo <= 3 ? 'ゆっくり' : tempo >= 5 ? '早口' : '普通';
+  console.log('[テンポ計算]', {
+    書き起こし全文: transcript,
+    句読点除去後: cleanedTranscript,
+    文字数_モーラ数: moraCount,
+    録音時間_秒: durationSec.toFixed(2),
+    テンポ_mora毎秒: tempo.toFixed(2),
+    判定: tempoLabel + `（目安：3以下=ゆっくり, 5以上=早口）`,
+  });
 
   // 無音区間
   const silenceCount = silenceDurations.length;
