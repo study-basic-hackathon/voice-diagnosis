@@ -128,7 +128,7 @@ ${transcript || '（取得できませんでした）'}
 - テンポが速い・無音区間が少ない → 外向性（extraversion）高め
 - 抑揚が大きい（音量標準偏差が高い）→ 開放性（openness）高め
 - 音量が安定・間が規則的（周期性高い）→ 誠実性（conscientiousness）高め
-- 声が小さい・間が多い → 神経症傾向（neuroticism）高め
+- 声が小さい・間が多い → 感受性の豊かさ・繊細さ（neuroticism）高め
 - 読み飛ばしが少ない（書き起こしが台本に近い）→ 誠実性高め
 
 以下のJSON形式のみで返答してください（説明文は不要）：
@@ -156,11 +156,11 @@ async function generatePartnerProfile(partnerBigFive, seed) {
 この性格を持つ理想の恋人のプロフィールを生成してください。
 
 【相手の性格スコア】
-- 開放性（openness）: ${partnerBigFive.openness}
-- 誠実性（conscientiousness）: ${partnerBigFive.conscientiousness}
-- 外向性（extraversion）: ${partnerBigFive.extraversion}
-- 協調性（agreeableness）: ${partnerBigFive.agreeableness}
-- 神経症傾向（neuroticism）: ${partnerBigFive.neuroticism}
+- 新しいものへの好奇心（openness）: ${partnerBigFive.openness}
+- まじめさ・几帳面さ（conscientiousness）: ${partnerBigFive.conscientiousness}
+- 社交的なエネルギー（extraversion）: ${partnerBigFive.extraversion}
+- 思いやり・協調性（agreeableness）: ${partnerBigFive.agreeableness}
+- 感受性の豊かさ・繊細さ（neuroticism）: ${partnerBigFive.neuroticism}
 
 魅力的でリアルな人物像を作成し、以下のJSON形式のみで返答してください（説明文は不要）：
 {
@@ -191,7 +191,7 @@ async function generateVoiceAnalysis(speechFeatures, userBigFive) {
   const prompt = `以下は、ある人が台本を読み上げた際の音声特徴データとビッグファイブスコアです。
 この人の「話し方の特徴」を、具体的・個性的に分析してください。
 
-【音声特徴データ】
+【音声特徴データ（参考値）】
 - 平均テンポ: ${speechFeatures.tempo.toFixed(2)} mora/秒
 - 無音区間の平均長さ: ${speechFeatures.silenceAvg.toFixed(0)} ms
 - 無音区間の回数: ${speechFeatures.silenceCount} 回
@@ -200,23 +200,29 @@ async function generateVoiceAnalysis(speechFeatures, userBigFive) {
 - 音量変化の周期性スコア: ${speechFeatures.rhythmScore.toFixed(2)}
 
 【ビッグファイブスコア】
-- 開放性: ${userBigFive.openness}
-- 誠実性: ${userBigFive.conscientiousness}
-- 外向性: ${userBigFive.extraversion}
-- 協調性: ${userBigFive.agreeableness}
-- 神経症傾向: ${userBigFive.neuroticism}
+- 新しいものへの好奇心: ${userBigFive.openness}
+- まじめさ・几帳面さ: ${userBigFive.conscientiousness}
+- 社交的なエネルギー: ${userBigFive.extraversion}
+- 思いやり・協調性: ${userBigFive.agreeableness}
+- 感受性の豊かさ・繊細さ: ${userBigFive.neuroticism}
+
+【出力の方針】
+- 数値（ms・dB・mora/秒など）はそのまま使わず、「少し長め」「ゆっくり」「しっかり」などの感覚的な言葉に変換すること
+- 専門用語を使わず、友達に話しかけるような親しみやすい口語表現にすること
+- ポジティブで温かいトーンにすること
+- 読んで「わかる！」と思えるような表現を心がけること
 
 以下のJSON形式のみで返答してください（説明文は不要）：
 {
-  "overall": "この人の話し方の全体的な印象（2〜3文、その人らしい具体的な描写で）",
-  "speed_label": "話すスピードを表す一言（例：ゆっくり丁寧 / テキパキ / など）",
-  "speed_description": "話すスピードの特徴と、それが相手にどう伝わるかの一文",
+  "overall": "この人の話し方の全体的な印象（2〜3文、親しみやすい言葉でその人らしく描写）",
+  "speed_label": "話すスピードを表す一言（例：ゆっくり丁寧 / テキパキ元気 / など）",
+  "speed_description": "話すスピードの特徴と、それが聞いている人にどう伝わるかを友達に話すような口調で",
   "pause_label": "間の使い方を表す一言（例：間を大切にする / 自然な間 / テンポよく など）",
-  "pause_description": "間の使い方の特徴と印象の一文",
+  "pause_description": "間の使い方の特徴と印象を友達に話すような口調で",
   "volume_label": "声の大きさを表す一言（例：穏やかな声量 / しっかりした声 / など）",
-  "volume_description": "声の大きさの特徴と印象の一文",
+  "volume_description": "声の大きさの特徴と印象を友達に話すような口調で",
   "rhythm_label": "抑揚・リズムを表す一言（例：抑揚豊か / 落ち着いたトーン / など）",
-  "rhythm_description": "抑揚やリズムの特徴と印象の一文",
+  "rhythm_description": "抑揚やリズムの特徴と印象を友達に話すような口調で",
   "keywords": ["この人の話し方を表すキーワード1", "キーワード2", "キーワード3"]
 }`;
 
