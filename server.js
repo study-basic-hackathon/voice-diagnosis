@@ -213,8 +213,12 @@ async function generateVoiceAnalysis(speechFeatures, userBigFive) {
   });
 
   const text = message.content[0].text.trim();
-  const jsonMatch = text.match(/\{[\s\S]*\}/);
-  if (!jsonMatch) throw new Error('声の分析JSONの解析に失敗しました');
+  console.log('[generateVoiceAnalysis] Claude raw response:', text);
+
+  // コードブロック（```json ... ``` or ``` ... ```）を除去してからJSON抽出
+  const stripped = text.replace(/```(?:json)?\s*/g, '').replace(/```/g, '');
+  const jsonMatch = stripped.match(/\{[\s\S]*\}/);
+  if (!jsonMatch) throw new Error('声の分析JSONの解析に失敗しました。レスポンス: ' + text.slice(0, 200));
   return JSON.parse(jsonMatch[0]);
 }
 
