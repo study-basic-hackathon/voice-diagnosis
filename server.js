@@ -125,7 +125,7 @@ async function analyzeBigFive(speechFeatures, transcript) {
 これらのデータをもとに、その人のビッグファイブ性格特性を 0〜100 のスコアで推定してください。
 
 【音声特徴データ】
-- 話すテンポ: ${tempoLabel}（台本の想定読了時間45秒に対し、録音時間 ${Math.round(speechFeatures.durationSec)} 秒）
+- 話すテンポ: ${tempoLabel}（台本の標準読了時間18〜22秒に対し、録音時間 ${Math.round(speechFeatures.durationSec)} 秒）
 - 無音区間の平均長さ: ${speechFeatures.silenceAvg.toFixed(0)} ms
 - 無音区間の回数: ${speechFeatures.silenceCount} 回
 - 音量の標準偏差: ${speechFeatures.volumeStdDev.toFixed(2)} dB
@@ -212,7 +212,7 @@ async function generateVoiceAnalysis(speechFeatures, userBigFive) {
 この人の「話し方の特徴」を、具体的・個性的に分析してください。
 
 【音声特徴データ（参考値）】
-- 話すテンポ: ${tempoLabel}（台本の想定読了時間45秒に対し、録音時間 ${Math.round(speechFeatures.durationSec)} 秒）
+- 話すテンポ: ${tempoLabel}（台本の標準読了時間18〜22秒に対し、録音時間 ${Math.round(speechFeatures.durationSec)} 秒）
 - 無音区間の平均長さ: ${speechFeatures.silenceAvg.toFixed(0)} ms
 - 無音区間の回数: ${speechFeatures.silenceCount} 回
 - 音量の標準偏差: ${speechFeatures.volumeStdDev.toFixed(2)} dB
